@@ -1,0 +1,203 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# # More Money, More Problems
+
+# ## Midterm Project - MLS Data
+
+# By: DeL
+
+# # Abstract
+
+# This is the Big Data and Analytics Midterm project. In this lab, I will be looking at a dataset about salaries in the U.S. I am interested in finding out different salaries and am wondering do men in the U.S. have the right to complain about salary when the women are paid so little. 
+# 
+# Some questions I am looking to answer (some may based on outside research):
+# 
+# * What is the highest salary?
+# * What is the lowest salary? 
+# * Who is paid the most? the least?
+# * Do certain positions get paid more?
+# * Is there a salary cap?
+# * What is the average salary?
+# * Do certain clubs (teams) pay their players more? 
+# 
+# I also want to look at how women in the U.S. are being paid, they are paid a lot less than men. This would be based on outside research about the min and max salary of players in the NWSL.
+
+# # Dataset Preperation
+
+# This site has data on MLS salaries dating back to 2007 but I am going to look at the most recent year, which is 2017. This data set is from https://www.kaggle.com/crawford/us-major-league-soccer-salaries#mls-salaries-2017.csv and contains 6 columns which include: club, last name, first name, position, base salary and guarteened compensation. I will be looking at a few things. First, I want to find the max, min and average salary. From there I want to look at teams and see what club the player that is paid the most plays for. I also want to look at position and see if that plays a role in salary. 
+
+# In this cell of code, I am going to define everything so that when I get further into the lab, I am able to pull things out of my data. 
+
+# In[41]:
+
+
+import math as m
+import numpy as np
+import scipy as sp
+import pandas as pd
+import matplotlib as plt
+import matplotlib.pyplot as plt
+import seaborn as sns  #IMPORTANT - UPGRADE SEABORN TO VERSION 0.9.0 IN ANACONDA ENV
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+
+mls_df = pd.read_csv ("mls-salaries-2017.csv")
+
+
+# I am going to use the head function to make sure my code works and that I have successfully opened the csv file. 
+
+# In[42]:
+
+
+mls_df.head (10)
+
+
+# Now that I have opened the first 10 on my dataset, I will look at the more specific parts of my dataset. I will look at index, columns. Later on in Data Modeling - I will look at info and describe!
+
+# In[43]:
+
+
+mls_df.index
+
+
+# * Index tells me the data index of the variable. 
+# * In this case we confirm that my_df.index is actually the range starting from the 0.
+
+# In[44]:
+
+
+mls_df.columns
+
+
+# * Columns tells me the data columns of the variable. 
+# * In this case we confirm that my_df.columns is the name of the columns
+
+# # Data Modeling
+
+# I am going to use my best friend: info to see if there is missing data and see how many columns there are.
+
+# In[45]:
+
+
+mls_df.info()
+
+
+# From this, it looks like their is missing data in two of the columns. There are two pieces of missing data in the club column and four pieces of data in the first name column. I think with this data, I am just going to ignore the missing pieces. There are only five total pieces of data missing out of 615, which isn't going to change the data. The only things missing are names and clubs. I do not really need those to figure out the min, max and average salary. 
+
+# Now, I am going to use my second best friend describe to see the min, max and average of salaries. 
+
+# In[46]:
+
+
+mls_df.describe()
+
+
+# This is very useful because it shows me the min,max and average of salaries in the MLS. I will use this data to analyize what it means. Describe tells me the numerical points I need to know. Thanks to describe, I do not have to do a ton of work.
+# 
+# From this data I know all of the min, max and averages of number salary and guaranteed compensation. 
+
+# From describe, I am able to conclude this data: 
+# 
+# Salary: 
+# 
+# * Min Salary: 52,999 dollars
+# * Max Salary: 6,660,000 dollars
+# * Average Salary: 296,977 dollars
+# 
+# Guaranteed Compensation: 
+# 
+# * Min Compensation: 52,999 dollars
+# * Max Compensation: 7,167,500 dollars
+# * Average Compensation: 326,139 dollars
+
+# I am going to compare what I got above with some of the code we learned earlier this semester!
+
+# In[47]:
+
+
+#open the file
+data_file = open("mls-salaries-2017.csv", "r");
+
+#create an empty list to store the data from the csv file
+mls_df = [];
+
+#put all lines from the file into a list
+for row in mls_df:
+   mls_df.append(row);
+    
+#close the file. It's the courteous and clean thing to do
+mls_df.close();
+
+# show the first five items in the list. Notice that they are all strings
+# the \n part of the string means "newline" - its the symbol that represents the end of a line
+print(mls_df[:5]);
+
+
+# I am going to use pandas to group by club!! This will help me see the breakdown of pay between clubs and their players. 
+
+# In[52]:
+
+
+# applying group() funtions to 
+# group the data on team value 
+mls_df.groupby ('club')
+
+
+# I am going to make a barplot to show me where the median, min and max base salaries are so it can show in a viz what describe told me above. It is very benefical to see this data used in a graph.
+
+# In[48]:
+
+
+sns.set(style='whitegrid')
+mls_df = sns.load_dataset('mls-salaries-2017.csv')
+ax = sns.boxplot(x=cc['base_salary'])
+
+
+# I want to make a scatter plot to show the base salary and the guaranteed compensation each player is given. 
+
+# In[53]:
+
+
+mls_df = sns.load_dataset("mls-salaries-2017") 
+sns.relplot (x="base_salary", y= "guaranteed_compensation", hue = "club", data = mls_df, kind = "scatter") 
+
+
+# # Data Analysis 
+
+# From the functions I used above, I was able to find out the min, max, avergage of both the base salary and guaranteed compensation. I was also able to find who was the highest paid player in 2017 and who the lowest paid player was. 
+# 
+# Salary: 
+# 
+# * Min Salary: 52,999 dollars
+# * Max Salary: 6,660,000 dollars
+# * Average Salary: 296,977 dollars
+# 
+# Guaranteed Compensation: 
+# 
+# * Min Compensation: 52,999 dollars
+# * Max Compensation: 7,167,500 dollars
+# * Average Compensation: 326,139 dollars
+# 
+# The highest paid player was Kaka - a Brazilian international playing in the MLS. He was paid 6,600,000 dollars during the 2017 MLS season. It makes sense for a player of his caliber to be paid as much as he did. 
+# 
+# The lowest paid player was a player from Seattle named Nouhou Tolo. I am not shocked he was paud so little because he was signed from Sounders 2 which is like a minor league for soccer.
+
+# # Conclusions
+
+# I always find it very interesting when looking at salaries. I always wonder how some men can complain about the amount of money they are making when women make a small percentage of what they make. The amount a player in the NWSL makes ranges from about 17,000 dollars to 50,000 dollars - that is not a living wage and many of them have to play year round in other countries to make enough money. I found that the min salary in the MLS is 52,999 dollars and the maximum is well over 6 million dollars. In general, I think that professional athletes are paid way more than necessary. I understand the putting your body through intense training but I have a problem when athletes (specifically male athletes) are paid more than teachers, business owners, surgeons. Overall, pay in sports is an interesting topic and I think there is much to debate from this small dataset. I believe that all athletes should be paid equally for doing the same job. I sort of went on a tangent from the dataset about the MLS but the USWNT and women in the NWSL deserve to be paid more especially after seeing the salary of the men in the MLS. I really enjoyed this lab. Pay discrimination and salaries are very interesting to me because there is a huge story within the numbers. I found that lab a little challenging trying to get the graphs to run. Overall, I learned a lot and am glad I was able to show all that I have learned so far in Big data! 
+
+# For my graph in conclusions - I am going to use a histogram to help me figure out the frequency in the values of data. 
+
+# In[57]:
+
+
+"mls_df"['mls_df'] = 615 * mls['base_salary'] / tips['guaranteed_compensation']
+
+grid = sns.FacetGrid(mls, row="club", col="salary", margin_titles=True)
+grid.map(plt.hist, "mls_df", bins=np.linspace(0, 40, 15));
+
+
+# # Acknowledgements
+
+# This lab was very tough. I got through it with the help of many people. First, I want to give a shoutout to June! She has helped me so much throughout this midterm project. She has helped me figure out why my code is not running and how to fix it. Shoutout Ms. Sconyers for giving me a boost of confidence when she became very excited about my dataset! I really appreciate the non stop help Ms. Sconyers provides to me and the rest of the class. Shoutout Ziah for literally being moral support for me.
